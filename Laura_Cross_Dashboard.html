@@ -1636,6 +1636,76 @@
     "GOOD",
     "GOOD"
    ]
+  },
+  {
+   "weekEnding": "2026-09-04",
+   "touchpoints": {
+    "meetup": {
+     "scheduled": false,
+     "attended": false
+    },
+    "checkin": {
+     "scheduled": false,
+     "attended": false
+    },
+    "friday": {
+     "scheduled": true,
+     "attended": true
+    }
+   },
+   "dailyCounts": [
+    5,
+    1,
+    2,
+    5,
+    5,
+    5,
+    5
+   ],
+   "dailyMoods": [
+    "GOOD",
+    "GOOD",
+    "GOOD",
+    "GOOD",
+    "GOOD",
+    "GREAT",
+    "GREAT"
+   ]
+  },
+  {
+   "weekEnding": "2026-09-11",
+   "touchpoints": {
+    "meetup": {
+     "scheduled": false,
+     "attended": false
+    },
+    "checkin": {
+     "scheduled": false,
+     "attended": false
+    },
+    "friday": {
+     "scheduled": true,
+     "attended": true
+    }
+   },
+   "dailyCounts": [
+    6,
+    5,
+    5,
+    6,
+    6,
+    6,
+    6
+   ],
+   "dailyMoods": [
+    "GREAT",
+    "GOOD",
+    "GOOD",
+    "GOOD",
+    "GOOD",
+    "GOOD",
+    "GOOD"
+   ]
   }
  ]
 };
@@ -1742,9 +1812,11 @@
             {
               const rows = await fetchWeeklyRows(name);
               if (Array.isArray(rows) && rows.length) {
-                const lastKnown = new Date(overrides[overrides.length - 1].weekEnding);
-                const newRows = rows.filter(r => new Date(r.weekEnding) > lastKnown);
-                combined = overrides.concat(newRows);
+                // Hand-entered weeks win. Feed weeks they do not cover stay, sorted by date.
+                const covered = new Set(overrides.map(o => String(o.weekEnding).slice(0, 10)));
+                const newRows = rows.filter(r => !covered.has(String(r.weekEnding).slice(0, 10)));
+                combined = overrides.concat(newRows)
+                  .sort((a, b) => String(a.weekEnding).localeCompare(String(b.weekEnding)));
               }
             }
           } catch (err) {
@@ -1773,9 +1845,11 @@
             {
               const rows = await fetchWeeklyRows(name);
               if (Array.isArray(rows) && rows.length) {
-                const lastKnown = new Date(LEGACY_HISTORY[name][LEGACY_HISTORY[name].length - 1].weekEnding);
-                const newRows = rows.filter(r => new Date(r.weekEnding) > lastKnown);
-                combined = LEGACY_HISTORY[name].concat(newRows);
+                // Hand-entered weeks win. Feed weeks they do not cover stay, sorted by date.
+                const covered = new Set(LEGACY_HISTORY[name].map(o => String(o.weekEnding).slice(0, 10)));
+                const newRows = rows.filter(r => !covered.has(String(r.weekEnding).slice(0, 10)));
+                combined = LEGACY_HISTORY[name].concat(newRows)
+                  .sort((a, b) => String(a.weekEnding).localeCompare(String(b.weekEnding)));
               }
             }
           } catch (err) {
